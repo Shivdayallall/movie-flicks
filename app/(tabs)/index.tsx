@@ -2,6 +2,7 @@ import { ActivityIndicator, FlatList, Image, ScrollView, Text, View } from "reac
 import {images} from "@/constants/images";
 import { icons } from "@/constants/icons";
 import SearchBar from "../components/SearchBar";
+
 import { useRouter } from "expo-router";
 import useFetch from "@/services/useFetch";
 import { fetchMovies } from "@/services/api";
@@ -10,7 +11,11 @@ import MovieCard from "../components/MovieCard";
 export default function Index() {
   const router = useRouter();
 
-  const {data: movies, loading: loadMovies, error: movieError} = useFetch(() => fetchMovies({
+  const {
+      data: movies, 
+      loading: loadMovies, 
+      error: movieError
+    } = useFetch(() => fetchMovies({
     query: ""
   }));
 
@@ -28,10 +33,13 @@ export default function Index() {
           <Text>Error: {movieError?.message}</Text>
         ): (
             <View className="flex-1 mt-5">
-              <SearchBar 
-                onPress={() => router.push("/search")}
-                placeholder="Search for a movie"
-              />
+               <SearchBar
+                  onPress={() => {
+                    router.push("/search");
+                  }}
+                  placeholder="Search for a movie"
+                  />
+
 
               <>
                 <Text className="text-lg text-white font-bold mt-5 mb-3">Latest Movies</Text>
