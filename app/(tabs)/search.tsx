@@ -22,14 +22,14 @@ const Search = () => {
   }),false);
 
   useEffect(() => {
-    const func = async() => {
+    const timeoutId = setTimeout(async() => {
       if(searchQuery.trim()) {
         await reLoadMovies();
       } else {
         reset();
       }
-    }
-    func();
+    },500)
+    return () => clearTimeout(timeoutId);
   }, [searchQuery])
 
   return (
