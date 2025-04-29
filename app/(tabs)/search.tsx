@@ -6,6 +6,7 @@ import { fetchMovies } from '@/services/api'
 import { icons } from '@/constants/icons'
 import SearchBar from '../components/SearchBar'
 import { useEffect, useState } from 'react'
+import { updateSearchCount } from '@/services/appWrite'
 
 const Search = () => {
 
@@ -21,10 +22,15 @@ const Search = () => {
   query: searchQuery
   }),false);
 
-  useEffect(() => {
+  useEffect(() => {    
     const timeoutId = setTimeout(async() => {
       if(searchQuery.trim()) {
         await reLoadMovies();
+        
+        if(movies?.length > 0 && movies?.[0]) {
+          await updateSearchCount(searchQuery, movies[0]);
+        }
+
       } else {
         reset();
       }
@@ -84,9 +90,20 @@ const Search = () => {
 
           </>
         }
-      />
 
-    </View>
+        ListEmptyComponent={
+          !loadMovies && !movieError ? (
+            <View className="mt-10 px-5">
+              <Text className="text-center text-gray-500">
+                {searchQuery.trim()
+                  ? "No movies found"
+                  : "Start typing to search for movies"}
+              </Text>
+            </View>
+          ) : null
+        }
+        />
+      </View>
   )
 }
 
