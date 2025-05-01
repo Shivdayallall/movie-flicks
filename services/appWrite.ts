@@ -15,28 +15,36 @@ export const updateSearchCount = async(query: string, movie: Movie) => {
 
     try {
         const result = await database.listDocuments(DATABASE_ID, COLLECTION_ID, [
-          Query.equal("SEARCHTERM", query),
+          Query.equal("searchTerm", query),
         ]);
 
-        console.log(result)
-    
         if (result.documents.length > 0) {
           const existingMovie = result.documents[0];
+
+          console.log("🧪 Incrementing COUNT:", existingMovie.count, "Type:", typeof existingMovie.count);
+
           await database.updateDocument(
             DATABASE_ID,
             COLLECTION_ID,
             existingMovie.$id,
             {
-              COUNT: existingMovie.COUNT + 1,
+              count: existingMovie.count + 1,
             }
           );
         } else {
           await database.createDocument(DATABASE_ID, COLLECTION_ID, ID.unique(), {
-            SEARCHTERM: query,
-            MOVIE_ID: movie.id,
-            TITLE: movie.title,
-            COUNT: 1,
-            POSTER_URL: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
+            searchTerm: query,
+            movie_id: movie.id,
+            title: movie.title,
+            count: 1,
+            poster_url: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
+          });
+          console.log("✅ Document created with:", {
+            searchTerm: query,
+            movie_id: movie.id,
+            title: movie.title,
+            count: 1,
+            poster_url: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
           });
         }
       } catch (error) {
@@ -44,11 +52,27 @@ export const updateSearchCount = async(query: string, movie: Movie) => {
         throw error;
       }
 
-    //if a document is found increment the SEARCHCOUNT field
-    // if no document is found c
-        // create a new document in the db
-
-
-
-
 }
+
+export const getTrendingMovies = async (): Promise<
+  TrendingMovie[] | undefined
+> => {
+    
+  try {
+    
+    const result = await database.listDocuments(DATABASE_ID, COLLECTION_ID, [
+      Query.limit(5)
+    //   Query.orderDesc("COUNT"),
+    ]);
+    console.log("🔥 getTrendingMovies() returned:");
+    console.log(JSON.stringify(result.documents, null, 2));
+
+
+
+    return result.documents as unknown as TrendingMovie[];
+  } catch (error) {
+    console.error(error);
+    return undefined;
+  }
+  
+};

@@ -7,9 +7,17 @@ import { useRouter } from "expo-router";
 import useFetch from "@/services/useFetch";
 import { fetchMovies } from "@/services/api";
 import MovieCard from "../components/MovieCard";
+import TrendingCard from "../components/TrendingCard";
+import { getTrendingMovies } from "@/services/appWrite";
 
 export default function Index() {
   const router = useRouter();
+
+  const {
+    data: trendingMovies,
+    loading: trendingLoading,
+    error: trendingError
+  } = useFetch(getTrendingMovies);
 
   const {
       data: movies, 
@@ -27,12 +35,14 @@ export default function Index() {
 
         <Image source={icons.logo} className="w-12 h-10 mt-20 mb-5 mx-auto" />
 
-        {loadMovies ? (
+        {loadMovies || trendingLoading ?(
           <ActivityIndicator size="large" color="#0000ff" className="mt-10 self-center"/>
-        ):movieError ? (
-          <Text>Error: {movieError?.message}</Text>
+        ):movieError || trendingError ? (
+          <Text>Error: {movieError?.message || trendingError?.message}</Text>
         ): (
             <View className="flex-1 mt-5">
+
+   
                <SearchBar
                   onPress={() => {
                     router.push("/search");
@@ -40,7 +50,35 @@ export default function Index() {
                   placeholder="Search for a movie"
                   />
 
+       
+              {trendingMovies && (
+                <View className="mt-10">
+                  <Text className="text-lg text-white font-bold mb-3">
+                    Trending Movies
+                  </Text>
+                  <FlatList
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    className="mb-4 mt-3"
+                    data={trendingMovies}
+                    contentContainerStyle={{
+                      gap: 26,
+                    }}
+                    renderItem={({ item, index }) => (
+                      <TrendingCard movie={item} index={index} />
+                    )}
+                    keyExtractor={(item, index) =>
+                      item?.movie_id != null ? item.movie_id.toString() : `fallback-${index}`
+                    }
+                    
+                    ItemSeparatorComponent={() => <View className="w-4" />}
+                  />
+                </View>
+            )}
 
+
+
+          
               <>
                 <Text className="text-lg text-white font-bold mt-5 mb-3">Latest Movies</Text>
 
@@ -74,9 +112,6 @@ export default function Index() {
             </View>
 
         )}
-
-    
-
       </ScrollView>
      
       
